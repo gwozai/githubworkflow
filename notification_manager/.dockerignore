@@ -1,0 +1,45 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 测试和文档
+tests/
+docs/
+*.md
+!README.md
+
+# 日志和数据库（运行时生成）
+logs/*.log*
+instance/*.db
+
+# 临时文件
+*.tmp
+*.temp
+.DS_Store
+
+# 截图
+screenshots/
+
+# 环境文件
+.env
+.env.local
+
+# 缓存
+.cache/
+.pytest_cache/
