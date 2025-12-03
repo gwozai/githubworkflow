@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+
+{% block title %}编辑模板 - 通知管理系统{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4"><i class="bi bi-pencil-square"></i> 编辑消息模板</h1>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <i class="bi bi-gear"></i> 编辑模板
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">修改模板信息和内容</p>
+                </div>
+                
+                <div class="card-body">
+                    <form method="POST" id="editTemplateForm" onsubmit="return submitForm()">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">模板名称 *</label>
+                                    <input type="text" class="form-control" id="name" name="name" 
+                                           value="{{ template.name }}" placeholder="例如：订单发货通知" required>
+                                    <div class="form-text">给模板起一个容易识别的名称</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="category" class="form-label">分类</label>
+                                    <select class="form-select" id="category" name="category">
+                                        <option value="custom" {{ 'selected' if template.category == 'custom' }}>自定义</option>
+                                        <option value="system" {{ 'selected' if template.category == 'system' }}>系统通知</option>
+                                        <option value="marketing" {{ 'selected' if template.category == 'marketing' }}>营销推广</option>
+                                        <option value="alert" {{ 'selected' if template.category == 'alert' }}>告警提醒</option>
+                                        <option value="report" {{ 'selected' if template.category == 'report' }}>报告汇总</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">模板描述</label>
+                            <textarea class="form-control" id="description" name="description" rows="2" 
+                                      placeholder="简单描述这个模板的用途">{{ template.description }}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="content" class="form-label">模板内容 *</label>
+                            <textarea class="form-control" id="content" name="content" rows="6" 
+                                      placeholder="输入消息模板内容，使用 {{变量名}} 来定义变量" 
+                                      required onkeyup="updatePreview()">{{ template.content }}</textarea>
+                            <div class="form-text">
+                                <strong>变量使用说明：</strong>使用 <code>{{变量名}}</code> 来定义变量，发送时可以动态替换
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">变量定义</label>
+                            <div id="variablesContainer">
+                                {% if template.variables %}
+                                    {% set variables = template.variables | from_json %}
+                                    {% for variable in variables %}
+                                    <div class="row mb-2 variable-row">
+                                        <div class="col-md-4">
+                                            <input type="text" class="form-control variable-name" 
+                                                   name="variable_name[]" value="{{ variable.name }}" placeholder="变量名">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="text" class="form-control" 
+                                                   name="variable_description[]" value="{{ variable.description }}" placeholder="变量描述（可选）">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeVariable(this)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="addVariable()">
+                                <i class="bi bi-plus"></i> 添加变量
+                            </button>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h6><i class="bi bi-eye"></i> 实时预览</h6>
+                            <div class="border rounded p-3 bg-light" id="preview">
+                                {{ template.content }}
+                            </div>
+                        </div>
+                        
+                        <!-- 隐藏的变量数据字段 -->
+                        <input type="hidden" name="variables" id="variablesData" value="">
+                        
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('templates') }}" class="btn btn-secondary">取消</a>
+                            <button type="button" class="btn btn-info" onclick="previewTemplate()">预览效果</button>
+                            <button type="submit" class="btn btn-primary">保存模板</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <i class="bi bi-lightbulb"></i> 模板示例
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6>订单通知模板</h6>
+                        <code class="d-block p-2 bg-light rounded small">
+你好 {{name}}！<br>
+你的订单 {{order_id}} 已经发货，预计 {{delivery_date}} 送达。<br>
+物流单号：{{tracking_number}}<br>
+收货地址：{{address}}<br>
+感谢您的购买！
+                        </code>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>系统告警模板</h6>
+                        <code class="d-block p-2 bg-light rounded small">
+🚨 系统告警<br>
+服务器：{{server_name}}<br>
+告警类型：{{alert_type}}<br>
+告警时间：{{alert_time}}<br>
+详细信息：{{details}}<br>
+请及时处理！
+                        </code>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm mt-3">
+                <div class="card-header">
+                    <i class="bi bi-info-circle"></i> 使用统计
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="h4 text-primary">{{ template.usage_count }}</div>
+                            <div class="small text-muted">使用次数</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="h4 text-success">{{ template.created_at.strftime('%m-%d') }}</div>
+                            <div class="small text-muted">创建日期</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 预览模态框 -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">模板预览</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">模板内容</label>
+                    <div class="border rounded p-3 bg-light" id="previewContent"></div>
+                </div>
+                <div id="previewVariables"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function addVariable() {
+    const container = document.getElementById('variablesContainer');
+    const div = document.createElement('div');
+    div.className = 'row mb-2 variable-row';
+    div.innerHTML = `
+        <div class="col-md-4">
+            <input type="text" class="form-control variable-name" name="variable_name[]" placeholder="变量名">
+        </div>
+        <div class="col-md-6">
+            <input type="text" class="form-control" name="variable_description[]" placeholder="变量描述（可选）">
+        </div>
+        <div class="col-md-2">
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeVariable(this)">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+    `;
+    container.appendChild(div);
+}
+
+function removeVariable(button) {
+    button.closest('.variable-row').remove();
+    updatePreview();
+}
+
+function updatePreview() {
+    const content = document.getElementById('content').value;
+    const preview = document.getElementById('preview');
+    
+    if (content) {
+        // 简单的变量替换预览
+        let previewContent = content;
+        document.querySelectorAll('.variable-name').forEach(input => {
+            if (input.value) {
+                const regex = new RegExp('{{' + input.value + '}}', 'g');
+                previewContent = previewContent.replace(regex, '[' + input.value + ']');
+            }
+        });
+        preview.innerHTML = previewContent.replace(/\n/g, '<br>');
+    } else {
+        preview.textContent = '请输入模板内容...';
+    }
+}
+
+function previewTemplate() {
+    const content = document.getElementById('content').value;
+    if (!content) {
+        alert('请先输入模板内容');
+        return;
+    }
+    
+    document.getElementById('previewContent').innerHTML = content.replace(/\n/g, '<br>');
+    
+    // 显示变量列表
+    const variables = [];
+    document.querySelectorAll('.variable-name').forEach((input, index) => {
+        if (input.value) {
+            const description = document.querySelectorAll('input[name="variable_description[]"]')[index]?.value || '';
+            variables.push({name: input.value, description: description});
+        }
+    });
+    
+    const variablesContainer = document.getElementById('previewVariables');
+    if (variables.length > 0) {
+        let html = '<label class="form-label">变量列表</label><ul class="list-group">';
+        variables.forEach(variable => {
+            html += '<li class="list-group-item d-flex justify-content-between">' +
+                '<span><code>{{' + variable.name + '}}</code></span>' +
+                '<small class="text-muted">' + variable.description + '</small>' +
+            '</li>';
+        });
+        html += '</ul>';
+        variablesContainer.innerHTML = html;
+    } else {
+        variablesContainer.innerHTML = '<p class="text-muted">此模板没有定义变量</p>';
+    }
+    
+    new bootstrap.Modal(document.getElementById('previewModal')).show();
+}
+
+function submitForm() {
+    // 收集变量数据
+    const variables = [];
+    document.querySelectorAll('.variable-name').forEach((input, index) => {
+        if (input.value) {
+            const description = document.querySelectorAll('input[name="variable_description[]"]')[index]?.value || '';
+            variables.push({
+                name: input.value,
+                description: description
+            });
+        }
+    });
+    
+    // 将变量数据转换为JSON并设置到隐藏字段
+    document.getElementById('variablesData').value = JSON.stringify(variables);
+    
+    return true; // 允许表单提交
+}
+
+// 页面加载时更新预览
+document.addEventListener('DOMContentLoaded', function() {
+    updatePreview();
+});
+</script>
+{% endblock %}

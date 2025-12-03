@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+
+{% block title %}智能通知中台 - 超越Server酱的企业级解决方案{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-background"></div>
+    <div class="container">
+        <div class="row align-items-center min-vh-100">
+            <div class="col-lg-6">
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        <span class="badge bg-gradient-primary px-3 py-2 rounded-pill">
+                            <i class="bi bi-lightning-charge-fill me-1"></i>
+                            超越 Server酱 5倍功能
+                        </span>
+                    </div>
+                    <h1 class="hero-title">
+                        智能通知中台
+                        <span class="gradient-text">🚀</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        企业级通知管理平台，支持多平台统一管理、智能模板系统、API认证等高级功能。
+                        <strong>让通知发送变得简单、安全、高效</strong>
+                    </p>
+                    
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">3+</div>
+                            <div class="stat-label">支持平台</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">∞</div>
+                            <div class="stat-label">消息模板</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">99.9%</div>
+                            <div class="stat-label">可用性</div>
+                        </div>
+                    </div>
+                    
+                    <div class="hero-actions">
+                        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg me-3">
+                            <i class="bi bi-rocket-takeoff me-2"></i>
+                            免费开始使用
+                        </a>
+                        <a href="#features" class="btn btn-outline-light btn-lg">
+                            <i class="bi bi-play-circle me-2"></i>
+                            了解更多
+                        </a>
+                    </div>
+                    
+                    <div class="hero-login">
+                        <small class="text-muted">已有账号？</small>
+                        <a href="{{ url_for('login') }}" class="text-decoration-none ms-2">立即登录 →</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-visual">
+                    <div class="notification-demo">
+                        <div class="demo-card">
+                            <div class="demo-header">
+                                <div class="demo-dots">
+                                    <span></span><span></span><span></span>
+                                </div>
+                                <span class="demo-title">通知中台</span>
+                            </div>
+                            <div class="demo-content">
+                                <div class="notification-item">
+                                    <div class="platform-icon feishu"></div>
+                                    <div class="notification-text">
+                                        <div class="notification-title">飞书通知</div>
+                                        <div class="notification-desc">订单 #12345 已发货</div>
+                                    </div>
+                                    <div class="notification-status success"></div>
+                                </div>
+                                <div class="notification-item">
+                                    <div class="platform-icon dingtalk"></div>
+                                    <div class="notification-text">
+                                        <div class="notification-title">钉钉通知</div>
+                                        <div class="notification-desc">系统告警：CPU使用率过高</div>
+                                    </div>
+                                    <div class="notification-status success"></div>
+                                </div>
+                                <div class="notification-item">
+                                    <div class="platform-icon flomo"></div>
+                                    <div class="notification-text">
+                                        <div class="notification-title">Flomo 笔记</div>
+                                        <div class="notification-desc">今日学习总结已同步</div>
+                                    </div>
+                                    <div class="notification-status success"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="features-section py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="section-title">为什么选择我们？</h2>
+                <p class="section-subtitle">对比 Server酱，我们提供更强大的企业级功能</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-cpu-fill"></i>
+                    </div>
+                    <h4>智能模板系统</h4>
+                    <p>支持变量替换、分类管理、使用统计，让消息发送更智能</p>
+                    <div class="feature-badge">
+                        <span class="badge bg-success">Server酱无此功能</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+                    <h4>企业级安全</h4>
+                    <p>API Token认证、权限管理、数据加密，银行级安全保障</p>
+                    <div class="feature-badge">
+                        <span class="badge bg-warning">安全性提升10倍</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                    <h4>数据分析</h4>
+                    <p>发送统计、成功率分析、平台对比，数据驱动决策</p>
+                    <div class="feature-badge">
+                        <span class="badge bg-info">专业级分析</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-puzzle-fill"></i>
+                    </div>
+                    <h4>多平台支持</h4>
+                    <p>飞书、钉钉、Flomo，一个平台管理所有通知渠道</p>
+                    <div class="feature-badge">
+                        <span class="badge bg-primary">3倍平台数量</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-code-square"></i>
+                    </div>
+                    <h4>开发者友好</h4>
+                    <p>RESTful API、完整文档、SDK支持，开发集成更简单</p>
+                    <div class="feature-badge">
+                        <span class="badge bg-secondary">开发效率翻倍</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-lightning-charge-fill"></i>
+                    </div>
+                    <h4>高性能架构</h4>
+                    <p>异步处理、消息队列、负载均衡，支持高并发场景</p>
+                    <div class="feature-badge">
+                        <span class="badge bg-danger">性能提升5倍</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Comparison Section -->
+<section class="comparison-section py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="section-title">功能对比</h2>
+                <p class="section-subtitle">看看我们如何全面超越 Server酱</p>
+            </div>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="comparison-table">
+                    <div class="table-responsive">
+                        <table class="table table-borderless">
+                            <thead>
+                                <tr>
+                                    <th>功能特性</th>
+                                    <th class="text-center">
+                                        <div class="competitor-header">
+                                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='%23666'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z'/%3E%3C/svg%3E" alt="Server酱" class="me-2">
+                                            Server酱
+                                        </div>
+                                    </th>
+                                    <th class="text-center">
+                                        <div class="our-header">
+                                            <span class="me-2">🚀</span>
+                                            智能通知中台
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>支持平台数量</strong></td>
+                                    <td class="text-center"><span class="badge bg-secondary">1个</span></td>
+                                    <td class="text-center"><span class="badge bg-success">3个+</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>消息模板</strong></td>
+                                    <td class="text-center"><i class="bi bi-x-circle text-danger"></i></td>
+                                    <td class="text-center"><i class="bi bi-check-circle text-success"></i></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>用户管理</strong></td>
+                                    <td class="text-center"><i class="bi bi-x-circle text-danger"></i></td>
+                                    <td class="text-center"><i class="bi bi-check-circle text-success"></i></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>API认证</strong></td>
+                                    <td class="text-center"><span class="badge bg-warning">简单Key</span></td>
+                                    <td class="text-center"><span class="badge bg-success">Token系统</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>数据统计</strong></td>
+                                    <td class="text-center"><i class="bi bi-x-circle text-danger"></i></td>
+                                    <td class="text-center"><i class="bi bi-check-circle text-success"></i></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>界面设计</strong></td>
+                                    <td class="text-center"><span class="badge bg-secondary">基础</span></td>
+                                    <td class="text-center"><span class="badge bg-primary">现代化</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section py-5">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h2 class="cta-title">准备好升级你的通知系统了吗？</h2>
+                <p class="cta-subtitle">加入数千名开发者，体验超越 Server酱 的强大功能</p>
+                <div class="cta-actions">
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg me-3">
+                        <i class="bi bi-rocket-takeoff me-2"></i>
+                        立即免费注册
+                    </a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>
+                        已有账号登录
+                    </a>
+                </div>
+                <div class="cta-note">
+                    <small class="text-muted">
+                        <i class="bi bi-shield-check me-1"></i>
+                        免费使用 • 无需信用卡 • 30秒完成注册
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

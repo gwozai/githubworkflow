@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}添加平台 - 通知管理系统{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="bi bi-plus-circle"></i> 添加平台</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-6">
+        <div class="card border-0 shadow-lg">
+            <div class="card-header bg-transparent border-0 pt-4 pb-0">
+                <div class="text-center">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary bg-gradient mb-3" style="width: 60px; height: 60px;">
+                        <i class="bi bi-plus-circle text-white" style="font-size: 1.5rem;"></i>
+                    </div>
+                    <h4 class="fw-bold">添加通知平台</h4>
+                    <p class="text-muted">配置新的通知平台以开始发送消息</p>
+                </div>
+            </div>
+            <div class="card-body px-4 pb-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">平台名称</label>
+                        <input type="text" class="form-control" id="name" name="name" required 
+                               placeholder="例如：我的飞书机器人">
+                        <div class="form-text">给这个平台配置起一个容易识别的名称</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="platform_type" class="form-label">平台类型</label>
+                        <select class="form-select" id="platform_type" name="platform_type" required onchange="updateExample()">
+                            <option value="">请选择平台类型</option>
+                            <optgroup label="即时通讯">
+                                <option value="feishu">飞书 (Feishu)</option>
+                                <option value="dingtalk">钉钉 (DingTalk)</option>
+                                <option value="wework">企业微信 (WeCom)</option>
+                                <option value="telegram">Telegram</option>
+                            </optgroup>
+                            <optgroup label="其他渠道">
+                                <option value="flomo">Flomo</option>
+                                <option value="email">邮件 (Email)</option>
+                                <option value="webhook">通用 Webhook</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="webhook_url" class="form-label">Webhook URL</label>
+                        <input type="url" class="form-control" id="webhook_url" name="webhook_url" required 
+                               placeholder="请输入完整的 Webhook URL">
+                        <div class="form-text" id="urlHelp">请输入平台提供的 Webhook URL</div>
+                    </div>
+                    
+                    <div class="alert alert-info" id="platformExample" style="display: none;">
+                        <h6>配置说明：</h6>
+                        <div id="exampleContent"></div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('platforms') }}" class="btn btn-secondary">取消</a>
+                        <button type="submit" class="btn btn-primary">添加平台</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updateExample() {
+    const platformType = document.getElementById('platform_type').value;
+    const exampleDiv = document.getElementById('platformExample');
+    const exampleContent = document.getElementById('exampleContent');
+    const urlHelp = document.getElementById('urlHelp');
+    
+    if (platformType === 'feishu') {
+        exampleContent.innerHTML = `
+            <p><strong>飞书机器人配置：</strong></p>
+            <ol>
+                <li>在飞书中创建自定义机器人</li>
+                <li>复制机器人的 Webhook URL</li>
+                <li>URL 格式类似：<code>https://open.feishu.cn/open-apis/bot/v2/hook/xxxxxxxx</code></li>
+            </ol>
+        `;
+        urlHelp.textContent = '请输入飞书机器人的 Webhook URL';
+        exampleDiv.style.display = 'block';
+    } else if (platformType === 'dingtalk') {
+        exampleContent.innerHTML = `
+            <p><strong>钉钉机器人配置：</strong></p>
+            <ol>
+                <li>在钉钉群聊中添加自定义机器人</li>
+                <li>复制机器人的 Webhook URL</li>
+                <li>URL 格式类似：<code>https://oapi.dingtalk.com/robot/send?access_token=xxxxxxxx</code></li>
+                <li>如果启用了加签，还需要配置密钥</li>
+            </ol>
+        `;
+        urlHelp.textContent = '请输入钉钉机器人的 Webhook URL';
+        exampleDiv.style.display = 'block';
+    } else if (platformType === 'flomo') {
+        exampleContent.innerHTML = `
+            <p><strong>Flomo 配置：</strong></p>
+            <ol>
+                <li>在 Flomo 中获取 API 地址</li>
+                <li>复制 API URL</li>
+                <li>URL 格式类似：<code>https://flomoapp.com/iwh/xxxxxxxx/xxxxxxxx</code></li>
+            </ol>
+        `;
+        urlHelp.textContent = '请输入 Flomo 的 API URL';
+        exampleDiv.style.display = 'block';
+    } else if (platformType === 'wework') {
+        exampleContent.innerHTML = `
+            <p><strong>企业微信机器人配置：</strong></p>
+            <ol>
+                <li>在企业微信群聊中添加群机器人</li>
+                <li>复制机器人的 Webhook URL</li>
+                <li>URL 格式类似：<code>https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxxxxxxx</code></li>
+            </ol>
+        `;
+        urlHelp.textContent = '请输入企业微信机器人的 Webhook URL';
+        exampleDiv.style.display = 'block';
+    } else if (platformType === 'telegram') {
+        exampleContent.innerHTML = `
+            <p><strong>Telegram Bot 配置：</strong></p>
+            <ol>
+                <li>通过 @BotFather 创建 Bot，获取 Bot Token</li>
+                <li>获取目标聊天的 Chat ID</li>
+                <li>格式：<code>bot_token:chat_id</code></li>
+                <li>例如：<code>123456789:ABCdefGHI:987654321</code></li>
+            </ol>
+        `;
+        urlHelp.textContent = '请输入 Bot Token 和 Chat ID（用冒号分隔）';
+        exampleDiv.style.display = 'block';
+        document.getElementById('webhook_url').type = 'text';
+        document.getElementById('webhook_url').placeholder = 'bot_token:chat_id';
+    } else if (platformType === 'email') {
+        exampleContent.innerHTML = `
+            <p><strong>邮件通知配置：</strong></p>
+            <ol>
+                <li>获取 SMTP 服务器信息</li>
+                <li>格式：<code>smtp服务器:端口:发件邮箱:密码:收件邮箱</code></li>
+                <li>例如：<code>smtp.qq.com:465:sender@qq.com:授权码:receiver@example.com</code></li>
+            </ol>
+            <p class="text-warning mb-0"><i class="bi bi-exclamation-triangle"></i> 使用QQ邮箱需要开启SMTP并获取授权码</p>
+        `;
+        urlHelp.textContent = '请输入 SMTP 配置（用冒号分隔）';
+        exampleDiv.style.display = 'block';
+        document.getElementById('webhook_url').type = 'text';
+        document.getElementById('webhook_url').placeholder = 'smtp服务器:端口:发件邮箱:密码:收件邮箱';
+    } else if (platformType === 'webhook') {
+        exampleContent.innerHTML = `
+            <p><strong>通用 Webhook 配置：</strong></p>
+            <ol>
+                <li>输入任意支持 POST JSON 的 Webhook URL</li>
+                <li>系统将发送格式：<code>{"message": "内容", "timestamp": "时间", "source": "notification_manager"}</code></li>
+            </ol>
+        `;
+        urlHelp.textContent = '请输入 Webhook URL';
+        exampleDiv.style.display = 'block';
+        document.getElementById('webhook_url').type = 'url';
+    } else {
+        exampleDiv.style.display = 'none';
+        urlHelp.textContent = '请输入平台提供的 Webhook URL';
+        document.getElementById('webhook_url').type = 'url';
+        document.getElementById('webhook_url').placeholder = '请输入完整的 Webhook URL';
+    }
+}
+</script>
+{% endblock %}

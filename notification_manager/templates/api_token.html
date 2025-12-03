@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+
+{% block title %}API Token - 通知管理系统{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4"><i class="bi bi-key"></i> API Token 管理</h1>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <i class="bi bi-shield-lock"></i> 安全认证
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">API Token用于程序化访问通知系统，请妥善保管</p>
+                </div>
+                
+                <div class="card-body">
+                    {% if current_user.api_token %}
+                    <div class="alert alert-success" role="alert">
+                        <h6><i class="bi bi-check-circle"></i> 当前Token状态</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Token:</strong> 
+                                <code id="currentToken">{{ current_user.api_token[:8] }}...{{ current_user.api_token[-8:] }}</code>
+                                <button class="btn btn-sm btn-outline-secondary ms-2" onclick="toggleTokenVisibility()">
+                                    <i class="bi bi-eye" id="toggleIcon"></i>
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>过期时间:</strong> 
+                                <span class="text-muted">{{ current_user.token_expires_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-2 mb-4">
+                        <button class="btn btn-warning" onclick="regenerateToken()">
+                            <i class="bi bi-arrow-clockwise"></i> 重新生成
+                        </button>
+                        <button class="btn btn-danger" onclick="revokeToken()">
+                            <i class="bi bi-trash"></i> 撤销Token
+                        </button>
+                        <button class="btn btn-info" onclick="copyToken()">
+                            <i class="bi bi-clipboard"></i> 复制Token
+                        </button>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning" role="alert">
+                        <h6><i class="bi bi-exclamation-triangle"></i> 未生成Token</h6>
+                        <p class="mb-0">您还没有API Token，点击下方按钮生成</p>
+                    </div>
+                    
+                    <button class="btn btn-primary mb-4" onclick="generateToken()">
+                        <i class="bi bi-plus-circle"></i> 生成API Token
+                    </button>
+                    {% endif %}
+                    
+                    <h6><i class="bi bi-info-circle"></i> 使用说明</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Header认证（推荐）</h6>
+                            <pre class="bg-light p-3 rounded"><code>Authorization: Bearer YOUR_TOKEN</code></pre>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>JSON Body认证</h6>
+                            <pre class="bg-light p-3 rounded"><code>{"token": "YOUR_TOKEN", ...}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm mt-4">
+                <div class="card-header">
+                    <i class="bi bi-code-square"></i> API 使用示例
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6>发送通知</h6>
+                        <pre class="bg-light p-3 rounded small"><code>curl -X POST http://localhost:5555/api/send \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "测试通知消息",
+    "platform": "平台名称（可选）"
+  }'</code></pre>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>使用模板发送</h6>
+                        <pre class="bg-light p-3 rounded small"><code>curl -X POST http://localhost:5555/api/send_template \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "template_id": 1,
+    "variables": {
+      "name": "张三",
+      "order_id": "12345"
+    }
+  }'</code></pre>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>获取模板详情</h6>
+                        <pre class="bg-light p-3 rounded small"><code>curl -X GET http://localhost:5555/api/template/1 \
+  -H "Authorization: Bearer YOUR_TOKEN"</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <i class="bi bi-shield-check"></i> 安全提醒
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger" role="alert">
+                        <h6><i class="bi bi-exclamation-triangle"></i> 重要提醒</h6>
+                        <ul class="mb-0 small">
+                            <li>请妥善保管您的API Token</li>
+                            <li>不要在公开场所分享Token</li>
+                            <li>定期更新Token以提高安全性</li>
+                            <li>如发现Token泄露请立即撤销</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>Token权限</h6>
+                        <ul class="list-unstyled small">
+                            <li><i class="bi bi-check text-success"></i> 发送通知消息</li>
+                            <li><i class="bi bi-check text-success"></i> 使用消息模板</li>
+                            <li><i class="bi bi-check text-success"></i> 查看模板详情</li>
+                            <li><i class="bi bi-x text-danger"></i> 修改平台配置</li>
+                            <li><i class="bi bi-x text-danger"></i> 删除数据</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm mt-3">
+                <div class="card-header">
+                    <i class="bi bi-graph-up"></i> 使用统计
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="h4 text-primary">{{ current_user.logs|length if current_user.logs else 0 }}</div>
+                            <div class="small text-muted">API调用次数</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="h4 text-success">{{ current_user.last_login.strftime('%m-%d') if current_user.last_login else '未知' }}</div>
+                            <div class="small text-muted">最后登录</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 隐藏的完整Token -->
+<input type="hidden" id="fullToken" value="{{ current_user.api_token if current_user.api_token else '' }}">
+{% endblock %}
+
+{% block scripts %}
+<script>
+let tokenVisible = false;
+
+function toggleTokenVisibility() {
+    const tokenElement = document.getElementById('currentToken');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const fullToken = document.getElementById('fullToken').value;
+    
+    if (tokenVisible) {
+        tokenElement.textContent = fullToken.substring(0, 8) + '...' + fullToken.substring(fullToken.length - 8);
+        toggleIcon.className = 'bi bi-eye';
+        tokenVisible = false;
+    } else {
+        tokenElement.textContent = fullToken;
+        toggleIcon.className = 'bi bi-eye-slash';
+        tokenVisible = true;
+    }
+}
+
+function copyToken() {
+    const fullToken = document.getElementById('fullToken').value;
+    if (!fullToken) {
+        showToast('没有可复制的Token', 'warning');
+        return;
+    }
+    
+    navigator.clipboard.writeText(fullToken).then(() => {
+        showToast('Token已复制到剪贴板', 'success');
+    }).catch(() => {
+        showToast('复制失败，请手动复制', 'error');
+    });
+}
+
+function generateToken() {
+    if (confirm('生成新的API Token？')) {
+        fetch('/api_token/generate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('API Token生成成功', 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast('生成失败: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            showToast('请求失败: ' + error.message, 'error');
+        });
+    }
+}
+
+function regenerateToken() {
+    if (confirm('重新生成API Token？旧Token将立即失效！')) {
+        generateToken();
+    }
+}
+
+function revokeToken() {
+    if (confirm('确定要撤销API Token？撤销后所有使用此Token的程序将无法访问！')) {
+        fetch('/api_token/revoke', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('API Token已撤销', 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast('撤销失败: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            showToast('请求失败: ' + error.message, 'error');
+        });
+    }
+}
+
+function showToast(message, type = 'info') {
+    // 创建Toast通知
+    const toastContainer = document.getElementById('toast-container') || createToastContainer();
+    
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : type === 'error' ? 'danger' : type === 'warning' ? 'warning' : 'primary'} border-0`;
+    toast.setAttribute('role', 'alert');
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    
+    // 自动移除
+    toast.addEventListener('hidden.bs.toast', () => {
+        toast.remove();
+    });
+}
+
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+    document.body.appendChild(container);
+    return container;
+}
+</script>
+{% endblock %}

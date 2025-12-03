@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+
+{% block title %}仪表板 - 通知管理系统{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="bi bi-speedometer2"></i> 仪表板</h1>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="card stats-card text-white h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-shrink-0">
+                    <i class="bi bi-gear-fill" style="font-size: 2.5rem;"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <div class="small text-white-50">配置的平台</div>
+                    <div class="h3 mb-0">{{ platforms|length }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card stats-card-success text-white h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-shrink-0">
+                    <i class="bi bi-check-circle-fill" style="font-size: 2.5rem;"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <div class="small text-white-50">成功发送</div>
+                    <div class="h3 mb-0">{{ logs|selectattr('status', 'equalto', 'success')|list|length }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card stats-card-warning text-white h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-shrink-0">
+                    <i class="bi bi-x-circle-fill" style="font-size: 2.5rem;"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <div class="small text-white-50">发送失败</div>
+                    <div class="h3 mb-0">{{ logs|selectattr('status', 'equalto', 'failed')|list|length }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card stats-card-info text-white h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-shrink-0">
+                    <i class="bi bi-clock-fill" style="font-size: 2.5rem;"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <div class="small text-white-50">总发送次数</div>
+                    <div class="h3 mb-0">{{ logs|length }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-gear"></i> 我的平台</h5>
+            </div>
+            <div class="card-body">
+                {% if platforms %}
+                    {% for platform in platforms %}
+                    <div class="d-flex align-items-center mb-3 p-3 bg-light rounded">
+                        <div class="platform-icon {{ 'feishu-icon' if platform.platform_type == 'feishu' else 'flomo-icon' }}">
+                            {% if platform.platform_type == 'feishu' %}
+                                <i class="bi bi-chat-dots"></i>
+                            {% elif platform.platform_type == 'flomo' %}
+                                <i class="bi bi-journal"></i>
+                            {% else %}
+                                <i class="bi bi-gear"></i>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-1">{{ platform.name }}</h6>
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-{{ 'success' if platform.is_active else 'secondary' }} me-2">
+                                    {{ '启用' if platform.is_active else '禁用' }}
+                                </span>
+                                <small class="text-muted">{{ platform.platform_type }}</small>
+                            </div>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-success" onclick="testPlatform({{ platform.id }})" title="测试连接">
+                                <i class="bi bi-play-fill"></i>
+                            </button>
+                            <a href="{{ url_for('edit_platform', platform_id=platform.id) }}" class="btn btn-sm btn-outline-primary" title="编辑">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-gear text-muted" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-2">还没有配置任何平台</p>
+                        <a href="{{ url_for('add_platform') }}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> 添加第一个平台
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-clock-history"></i> 最近发送记录</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span></span>
+                    <button class="btn btn-sm btn-outline-primary" onclick="refreshLogs()">
+                        <i class="bi bi-arrow-clockwise"></i> 刷新
+                    </button>
+                </div>
+                
+                <div id="logsContainer">
+                    {% if logs %}
+                        {% for log in logs %}
+                        <div class="d-flex justify-content-between align-items-start mb-2 log-item" data-status="{{ log.status }}">
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-{{ 'check-circle-fill text-success' if log.status == 'success' else 'x-circle-fill text-danger' }}"></i>
+                                    <small class="ms-2 text-muted">{{ log.sent_at.strftime('%m-%d %H:%M') }}</small>
+                                    <span class="badge bg-{{ 'success' if log.status == 'success' else 'danger' }} ms-2">
+                                        {{ '成功' if log.status == 'success' else '失败' }}
+                                    </span>
+                                </div>
+                                <div class="mt-1">
+                                    <small>{{ log.message[:50] }}{% if log.message|length > 50 %}...{% endif %}</small>
+                                    {% if log.error_message %}
+                                    <div class="text-danger small mt-1">
+                                        <i class="bi bi-exclamation-triangle"></i> {{ log.error_message[:100] }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% if not loop.last %}<hr>{% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-inbox text-muted" style="font-size: 2rem;"></i>
+                            <p class="text-muted mt-2">暂无发送记录</p>
+                            <small class="text-muted">发送第一条消息后这里会显示记录</small>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-code-slash"></i> API 使用说明</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>推荐使用API Token认证</strong> - 更安全的企业级认证方式
+                    <a href="{{ url_for('api_token_page') }}" class="btn btn-sm btn-primary ms-2">
+                        <i class="bi bi-key me-1"></i>管理Token
+                    </a>
+                </div>
+                
+                <h6><i class="bi bi-shield-check text-success me-2"></i>Header认证（推荐）</h6>
+                <pre><code>POST /api/send
+Authorization: Bearer YOUR_API_TOKEN
+Content-Type: application/json
+
+{
+    "message": "你的通知内容",
+    "platform": "平台名称（可选）"
+}</code></pre>
+
+                <h6 class="mt-4"><i class="bi bi-code-square text-primary me-2"></i>JSON Body认证（兼容）</h6>
+                <pre><code>POST /api/send
+Content-Type: application/json
+
+{
+    "token": "YOUR_API_TOKEN",
+    "message": "你的通知内容",
+    "platform": "平台名称（可选）"
+}</code></pre>
+
+                <p class="mt-3"><strong>示例：</strong></p>
+                <pre><code># 使用Header认证（推荐）
+curl -X POST \
+     -H "Authorization: Bearer YOUR_API_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{"message":"测试通知 🚀"}' \
+     http://localhost:5555/api/send
+
+# 使用JSON Body认证（兼容旧版本）
+curl -X POST \
+     -H "Content-Type: application/json" \
+     -d '{"token":"YOUR_API_TOKEN","message":"测试通知 🧍‍♂️"}' \
+     http://localhost:5555/api/send</code></pre>
+
+                <div class="alert alert-warning mt-3">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <small>请将 <code>YOUR_API_TOKEN</code> 替换为你的实际API Token</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function testPlatform(platformId) {
+    const button = event.target.closest('button');
+    const originalText = button.innerHTML;
+    
+    // 显示加载状态
+    button.innerHTML = '<span class="loading-spinner me-1"></span>测试中...';
+    button.disabled = true;
+    
+    fetch('/test_platform/' + platformId, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // 恢复按钮状态
+        button.innerHTML = originalText;
+        button.disabled = false;
+        
+        if (data.success) {
+            showToast('测试消息发送成功！', 'success');
+        } else {
+            showToast('测试消息发送失败：' + data.response, 'error');
+        }
+    })
+    .catch(error => {
+        // 恢复按钮状态
+        button.innerHTML = originalText;
+        button.disabled = false;
+        showToast('发送失败：' + error, 'error');
+    });
+}
+
+function refreshLogs() {
+    const container = document.getElementById('logsContainer');
+    const button = event.target.closest('button');
+    const originalHtml = button.innerHTML;
+    
+    // 显示加载状态
+    button.innerHTML = '<span class="loading-spinner me-1"></span>刷新中...';
+    button.disabled = true;
+    
+    fetch('/api/recent_logs')
+        .then(response => response.json())
+        .then(data => {
+            // 更新日志显示
+            if (data.logs && data.logs.length > 0) {
+                let html = '';
+                data.logs.forEach((log, index) => {
+                    const statusIcon = log.status === 'success' ? 'check-circle-fill text-success' : 'x-circle-fill text-danger';
+                    const statusBadge = log.status === 'success' ? 'success' : 'danger';
+                    const statusText = log.status === 'success' ? '成功' : '失败';
+                    
+                    html += `
+                        <div class="d-flex justify-content-between align-items-start mb-2 log-item" data-status="${log.status}">
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-${statusIcon}"></i>
+                                    <small class="ms-2 text-muted">${log.sent_at}</small>
+                                    <span class="badge bg-${statusBadge} ms-2">${statusText}</span>
+                                </div>
+                                <div class="mt-1">
+                                    <small>${log.message.length > 50 ? log.message.substring(0, 50) + '...' : log.message}</small>
+                                    ${log.error_message ? `<div class="text-danger small mt-1"><i class="bi bi-exclamation-triangle"></i> ${log.error_message.substring(0, 100)}</div>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        ${index < data.logs.length - 1 ? '<hr>' : ''}
+                    `;
+                });
+                container.innerHTML = html;
+            } else {
+                container.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="bi bi-inbox text-muted" style="font-size: 2rem;"></i>
+                        <p class="text-muted mt-2">暂无发送记录</p>
+                        <small class="text-muted">发送第一条消息后这里会显示记录</small>
+                    </div>
+                `;
+            }
+            
+            showToast('发送记录已刷新', 'success');
+        })
+        .catch(error => {
+            console.error('刷新失败:', error);
+            showToast('刷新失败，请稍后重试', 'error');
+        })
+        .finally(() => {
+            // 恢复按钮状态
+            button.innerHTML = originalHtml;
+            button.disabled = false;
+        });
+}
+
+function showToast(message, type = 'info') {
+    // 创建 toast 元素
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} alert-dismissible fade show position-fixed`;
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    toast.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // 自动移除
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.remove();
+        }
+    }, 5000);
+}
+
+// 页面加载完成后添加动画
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            card.style.transition = 'all 0.5s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

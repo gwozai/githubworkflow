@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}编辑平台 - 通知管理系统{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="bi bi-pencil"></i> 编辑平台</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">平台名称</label>
+                        <input type="text" class="form-control" id="name" name="name" required 
+                               value="{{ platform.name }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="platform_type" class="form-label">平台类型</label>
+                        <select class="form-select" id="platform_type" name="platform_type" required>
+                            <option value="feishu" {{ 'selected' if platform.platform_type == 'feishu' }}>飞书 (Feishu)</option>
+                            <option value="dingtalk" {{ 'selected' if platform.platform_type == 'dingtalk' }}>钉钉 (DingTalk)</option>
+                            <option value="flomo" {{ 'selected' if platform.platform_type == 'flomo' }}>Flomo</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="webhook_url" class="form-label">Webhook URL</label>
+                        <input type="url" class="form-control" id="webhook_url" name="webhook_url" required 
+                               value="{{ platform.webhook_url }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
+                                   {{ 'checked' if platform.is_active }}>
+                            <label class="form-check-label" for="is_active">
+                                启用此平台
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('platforms') }}" class="btn btn-secondary">取消</a>
+                        <button type="button" class="btn btn-outline-success" onclick="testPlatform()">测试连接</button>
+                        <button type="submit" class="btn btn-primary">保存更改</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="bi bi-info-circle"></i> 平台信息</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>创建时间：</strong> {{ platform.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                <p><strong>平台ID：</strong> {{ platform.id }}</p>
+                <p><strong>状态：</strong> 
+                    <span class="badge bg-{{ 'success' if platform.is_active else 'secondary' }}">
+                        {{ '启用' if platform.is_active else '禁用' }}
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function testPlatform() {
+    fetch('/test_platform/{{ platform.id }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('测试消息发送成功！');
+        } else {
+            alert('测试消息发送失败：' + data.response);
+        }
+    })
+    .catch(error => {
+        alert('发送失败：' + error);
+    });
+}
+</script>
+{% endblock %}

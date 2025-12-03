@@ -1,0 +1,316 @@
+{% extends "base.html" %}
+
+{% block title %}消息模板 - 通知管理系统{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="bi bi-file-text"></i> 消息模板</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('create_template') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> 创建模板
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-person-workspace"></i> 我的模板</h5>
+            </div>
+            <div class="card-body">
+                {% if user_templates %}
+                    {% for template in user_templates %}
+                    <div class="template-item p-3 border rounded mb-3 notification-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="platform-icon bg-primary me-3">
+                                        <i class="bi bi-file-text text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">{{ template.name }}</h6>
+                                        <p class="text-muted small mb-1">{{ template.description or '暂无描述' }}</p>
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge bg-info me-2">{{ template.category }}</span>
+                                            <span class="badge bg-success me-2">使用 {{ template.usage_count }} 次</span>
+                                            <small class="text-muted">{{ template.created_at.strftime('%Y-%m-%d') }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="template-preview bg-light p-2 rounded">
+                                    <small class="text-muted">内容预览：</small>
+                                    <div class="small">{{ template.content[:100] }}{% if template.content|length > 100 %}...{% endif %}</div>
+                                </div>
+                            </div>
+                            <div class="btn-group-vertical ms-3">
+                                <button class="btn btn-sm btn-outline-success" onclick="useTemplate({{ template.id }})" title="使用模板">
+                                    <i class="bi bi-play"></i>
+                                </button>
+                                <a href="{{ url_for('edit_template', template_id=template.id) }}" class="btn btn-sm btn-outline-primary" title="编辑">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteTemplate({{ template.id }}, '{{ template.name }}')" title="删除">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-file-text text-muted" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-2">还没有创建任何模板</p>
+                        <a href="{{ url_for('create_template') }}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> 创建第一个模板
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-shop"></i> 模板市场</h5>
+            </div>
+            <div class="card-body">
+                {% if public_templates %}
+                    {% for template in public_templates %}
+                    <div class="template-item p-2 border rounded mb-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="small mb-1">{{ template.name }}</h6>
+                                <p class="text-muted small mb-1">{{ template.description or '暂无描述' }}</p>
+                                <span class="badge bg-secondary small">{{ template.usage_count }} 次使用</span>
+                            </div>
+                            <button class="btn btn-sm btn-outline-success" onclick="copyTemplate({{ template.id }})" title="复制模板">
+                                <i class="bi bi-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="bi bi-shop text-muted" style="font-size: 2rem;"></i>
+                        <p class="text-muted small mt-2">暂无公共模板</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="bi bi-lightbulb"></i> 使用提示</h5>
+            </div>
+            <div class="card-body">
+                <div class="small">
+                    <p><strong>变量使用：</strong></p>
+                    <p>在模板中使用 <code>{{变量名}}</code> 来定义变量，发送时可以动态替换。</p>
+                    
+                    <p><strong>示例：</strong></p>
+                    <div class="bg-light p-2 rounded">
+                        <code>你好 {{name}}，你的订单 {{order_id}} 已发货！</code>
+                    </div>
+                    
+                    <p class="mt-2"><strong>API调用：</strong></p>
+                    <div class="bg-light p-2 rounded">
+                        <code class="small">POST /api/send_template<br>{"template_id": 1, "variables": {"name": "张三", "order_id": "12345"}}</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 使用模板模态框 -->
+<div class="modal fade" id="useTemplateModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">使用模板</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="useTemplateForm">
+                    <div class="mb-3">
+                        <label class="form-label">模板内容</label>
+                        <div id="templateContent" class="form-control" readonly style="min-height: 100px;"></div>
+                    </div>
+                    <div id="variablesContainer"></div>
+                    <div class="mb-3">
+                        <label for="targetPlatform" class="form-label">目标平台</label>
+                        <select class="form-select" id="targetPlatform">
+                            <option value="">所有启用的平台</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="sendTemplate()">发送消息</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 删除确认模态框 -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">确认删除</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>确定要删除模板 "<span id="templateName"></span>" 吗？</p>
+                <p class="text-danger"><small>此操作不可撤销！</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">确认删除</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentTemplateId = null;
+
+function useTemplate(templateId) {
+    currentTemplateId = templateId;
+    
+    // 获取模板详情
+    fetch(`/api/template/${templateId}`)
+        .then(response => response.json())
+        .then(template => {
+            document.getElementById('templateContent').textContent = template.content;
+            
+            // 解析变量
+            const variables = template.variables || [];
+            const container = document.getElementById('variablesContainer');
+            container.innerHTML = '';
+            
+            if (variables.length > 0) {
+                variables.forEach(variable => {
+                    const div = document.createElement('div');
+                    div.className = 'mb-3';
+                    div.innerHTML = `
+                        <label class="form-label">${variable.name}</label>
+                        <input type="text" class="form-control variable-input" 
+                               data-variable="${variable.name}" 
+                               placeholder="${variable.description || ''}">
+                    `;
+                    container.appendChild(div);
+                });
+            }
+            
+            new bootstrap.Modal(document.getElementById('useTemplateModal')).show();
+        })
+        .catch(error => {
+            showToast('获取模板失败：' + error, 'error');
+        });
+}
+
+function sendTemplate() {
+    const variables = {};
+    document.querySelectorAll('.variable-input').forEach(input => {
+        variables[input.dataset.variable] = input.value;
+    });
+    
+    const platform = document.getElementById('targetPlatform').value;
+    
+    const data = {
+        template_id: currentTemplateId,
+        variables: variables,
+        token: '{{ current_user.username }}'
+    };
+    
+    if (platform) {
+        data.platform = platform;
+    }
+    
+    fetch('/api/send_template', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.message) {
+            showToast(result.message, 'success');
+            bootstrap.Modal.getInstance(document.getElementById('useTemplateModal')).hide();
+        } else {
+            showToast(result.error || '发送失败', 'error');
+        }
+    })
+    .catch(error => {
+        showToast('发送失败：' + error, 'error');
+    });
+}
+
+function deleteTemplate(templateId, templateName) {
+    document.getElementById('templateName').textContent = templateName;
+    document.getElementById('deleteForm').action = `/templates/delete/${templateId}`;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+function copyTemplate(templateId) {
+    // 复制公共模板到用户模板
+    fetch(`/api/copy_template/${templateId}`, {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            showToast('模板复制成功！', 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showToast(result.error || '复制失败', 'error');
+        }
+    })
+    .catch(error => {
+        showToast('复制失败：' + error, 'error');
+    });
+}
+
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} alert-dismissible fade show position-fixed`;
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    toast.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.remove();
+        }
+    }, 5000);
+}
+
+// 页面加载动画
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.template-item');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            card.style.transition = 'all 0.5s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

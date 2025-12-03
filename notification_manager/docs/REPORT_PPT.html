@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能通知管理中台 - 项目汇报</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .slide {
+            min-height: 100vh;
+            padding: 60px 0;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+        }
+        .slide:nth-child(odd) {
+            background: #f8f9fa;
+        }
+        .slide-title {
+            background: var(--primary-gradient);
+            color: white;
+        }
+        .slide-title h1 {
+            font-size: 4rem;
+            font-weight: 700;
+        }
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 2rem;
+        }
+        .feature-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            height: 100%;
+        }
+        .screenshot {
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            max-width: 100%;
+            transition: transform 0.3s;
+        }
+        .screenshot:hover {
+            transform: scale(1.02);
+        }
+        .stat-box {
+            background: var(--primary-gradient);
+            color: white;
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+        }
+        .table-compare th {
+            background: var(--primary-gradient);
+            color: white;
+        }
+        .badge-success { background: #28a745; }
+        .badge-danger { background: #dc3545; }
+        .timeline-item {
+            position: relative;
+            padding-left: 40px;
+            margin-bottom: 30px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 5px;
+            width: 20px;
+            height: 20px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+        }
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 9px;
+            top: 25px;
+            width: 2px;
+            height: calc(100% + 10px);
+            background: #ddd;
+        }
+        .timeline-item:last-child::after {
+            display: none;
+        }
+        .nav-slide {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1000;
+        }
+        .nav-slide a {
+            display: block;
+            width: 12px;
+            height: 12px;
+            margin: 10px 0;
+            background: #ccc;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        .nav-slide a:hover, .nav-slide a.active {
+            background: #667eea;
+            transform: scale(1.3);
+        }
+    </style>
+</head>
+<body>
+
+<!-- 导航点 -->
+<nav class="nav-slide d-none d-lg-block">
+    <a href="#slide1" title="封面"></a>
+    <a href="#slide2" title="目录"></a>
+    <a href="#slide3" title="首页展示"></a>
+    <a href="#slide4" title="仪表板"></a>
+    <a href="#slide5" title="平台管理"></a>
+    <a href="#slide6" title="API Token"></a>
+    <a href="#slide7" title="技术架构"></a>
+    <a href="#slide8" title="功能对比"></a>
+    <a href="#slide9" title="项目成果"></a>
+    <a href="#slide10" title="后续规划"></a>
+</nav>
+
+<!-- Slide 1: 封面 -->
+<section id="slide1" class="slide slide-title">
+    <div class="container text-center">
+        <div class="mb-4">
+            <span class="badge bg-warning text-dark fs-5 px-4 py-2">
+                <i class="bi bi-lightning-charge"></i> 超越 Server酱 7倍功能
+            </span>
+        </div>
+        <h1 class="display-1 fw-bold mb-4">智能通知管理中台</h1>
+        <p class="lead fs-3 mb-5 opacity-75">企业级通知管理平台 · 项目汇报</p>
+        <div class="row justify-content-center g-4">
+            <div class="col-auto">
+                <div class="bg-white bg-opacity-10 rounded-4 p-4">
+                    <div class="fs-1 fw-bold">7+</div>
+                    <div class="opacity-75">支持平台</div>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="bg-white bg-opacity-10 rounded-4 p-4">
+                    <div class="fs-1 fw-bold">50x</div>
+                    <div class="opacity-75">性能提升</div>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="bg-white bg-opacity-10 rounded-4 p-4">
+                    <div class="fs-1 fw-bold">100%</div>
+                    <div class="opacity-75">测试通过</div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-5 opacity-50">
+            <p>2025年12月</p>
+        </div>
+    </div>
+</section>
+
+<!-- Slide 2: 目录 -->
+<section id="slide2" class="slide">
+    <div class="container">
+        <h2 class="section-title text-center mb-5">
+            <i class="bi bi-list-ul text-primary"></i> 汇报目录
+        </h2>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="list-group list-group-flush">
+                    <a href="#slide3" class="list-group-item list-group-item-action d-flex align-items-center py-4">
+                        <span class="badge bg-primary rounded-pill me-3 fs-5">1</span>
+                        <span class="fs-4">核心功能展示</span>
+                    </a>
+                    <a href="#slide7" class="list-group-item list-group-item-action d-flex align-items-center py-4">
+                        <span class="badge bg-primary rounded-pill me-3 fs-5">2</span>
+                        <span class="fs-4">技术架构</span>
+                    </a>
+                    <a href="#slide8" class="list-group-item list-group-item-action d-flex align-items-center py-4">
+                        <span class="badge bg-primary rounded-pill me-3 fs-5">3</span>
+                        <span class="fs-4">功能对比</span>
+                    </a>
+                    <a href="#slide9" class="list-group-item list-group-item-action d-flex align-items-center py-4">
+                        <span class="badge bg-primary rounded-pill me-3 fs-5">4</span>
+                        <span class="fs-4">项目成果</span>
+                    </a>
+                    <a href="#slide10" class="list-group-item list-group-item-action d-flex align-items-center py-4">
+                        <span class="badge bg-primary rounded-pill me-3 fs-5">5</span>
+                        <span class="fs-4">后续规划</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Slide 3: 首页展示 -->
+<section id="slide3" class="slide">
+    <div class="container">
+        <h2 class="section-title">
+            <i class="bi bi-house text-primary"></i> 系统首页
+        </h2>
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <img src="../screenshots/06-homepage.png" class="screenshot w-100" alt="首页">
+            </div>
+            <div class="col-lg-5">
+                <div class="feature-card">
+                    <h4 class="mb-4"><i class="bi bi-stars text-warning"></i> 页面亮点</h4>
+                    <ul class="list-unstyled">
+                        <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> 现代化渐变设计</li>
+                        <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> 清晰的产品定位</li>
+                        <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> 功能对比一目了然</li>
+                        <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> 快速注册入口</li>
+                        <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> 响应式移动端适配</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Slide 4: 仪表板 -->
+<section id="slide4" class="slide">
+    <div class="container">
+        <h2 class="section-title">
+            <i class="bi bi-speedometer2 text-primary"></i> 仪表板
+        </h2>
+        <div class="row align-items-center g-5">
+            <div class="col-lg-5">
+                <div class="feature-card">
+                    <h4 class="mb-4"><i class="bi bi-bar-chart text-info"></i> 核心功能</h4>
+                    <div class="mb-4">
+                        <h6 class="text-muted">实时统计</h6>
+                        <p>平台数量、成功率、发送次数一目了然</p>
+                    </div>
+                    <div class="mb-4">
+                        <h6 class="text-muted">平台概览</h6>
+                        <p>快速查看所有配置平台状态</p>
+                    </div>
+                    <div class="mb-4">
+                        <h6 class="text-muted">发送记录</h6>
+                        <p>最近消息发送状态实时更新</p>
+                    </div>
+                    <div>
+                        <h6 class="text-muted">API说明</h6>
+                        <p>接口调用指南，开发者友好</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <img src="../screenshots/01-dashboard.png" class="screenshot w-100" alt="仪表板">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Slide 5: 平台管理 -->
+<section id="slide5" class="slide">
+    <div class="container">
+        <h2 class="section-title">
+            <i class="bi bi-grid text-primary"></i> 平台管理
+        </h2>
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <img src="../screenshots/02-platforms.png" class="screenshot w-100" alt="平台管理">
+            </div>
+            <div class="col-lg-5">
+                <div class="feature-card">
+                    <h4 class="mb-4"><i class="bi bi-collection text-success"></i> 支持的平台</h4>
+                    <table class="table table-borderless">
+                        <tr>
+                            <td><span class="badge bg-info">飞书</span></td>
+                            <td>即时通讯</td>
+                            <td><i class="bi bi-check-circle-fill text-success"></i></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge bg-primary">钉钉</span></td>
+                            <td>即时通讯</td>
+                            <td><i class="bi bi-check-circle-fill text-success"></i></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge bg-success">企业微信</span></td>
+                            <td>即时通讯</td>
+                            <td><i class="bi bi-check-circle-fill text-success"></i></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge bg-info">Telegram</span></td>
+                            <td>即时通讯</td>
+                            <td><i class="bi bi-check-circle-fill text-success"></i></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge bg-warning text-dark">Flomo</span></td>
+                            <td>笔记工具</td>
+                            <td><i class="bi bi-check-circle-fill text-success"></i></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge bg-danger">邮件</span></td>
+                            <td>传统渠道</td>
+                            <td><i class="bi bi-check-circle-fill text-success"></i></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge bg-dark">Webhook</span></td>
+                            <td>通用接口</td>
+                            <td><i class="bi bi-check-circle-fill text-success"></i></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Slide 6: API Token -->
+<section id="slide6" class="slide">
+    <div class="container">
+        <h2 class="section-title">
+            <i class="bi bi-key text-primary"></i> API Token 管理
+        </h2>
+        <div class="row align-items-center g-5">
+            <div class="col-lg-5">
+                <div class="feature-card">
+                    <h4 class="mb-4"><i class="bi bi-shield-check text-danger"></i> 安全特性</h4>
+                    <ul class="list-unstyled">
+                        <li class="mb-3"><i class="bi bi-lock-fill text-primary me-2"></i> Token生成与管理</li>
+                        <li class="mb-3"><i class="bi bi-clock-fill text-warning me-2"></i> 过期时间控制</li>
+                        <li class="mb-3"><i class="bi bi-x-circle-fill text-danger me-2"></i> 一键撤销</li>
+                        <li class="mb-3"><i class="bi bi-file-text-fill text-info me-2"></i> 完整API文档</li>
+                    </ul>
+                    <hr>
+                    <h6 class="text-muted mb-3">API调用示例</h6>
+                    <pre class="bg-dark text-light p-3 rounded"><code>curl -X POST /api/send \
+  -H "Authorization: Bearer TOKEN" \
+  -d '{"message": "Hello"}'</code></pre>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <img src="../screenshots/04-api-token.png" class="screenshot w-100" alt="API Token">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Slide 7: 技术架构 -->
+<section id="slide7" class="slide">
+    <div class="container">
+        <h2 class="section-title text-center">
+            <i class="bi bi-diagram-3 text-primary"></i> 技术架构
+        </h2>
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <i class="bi bi-server text-primary" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3">后端</h5>
+                    <p class="text-muted">Flask + SQLAlchemy</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <i class="bi bi-palette text-success" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3">前端</h5>
+                    <p class="text-muted">Bootstrap 5.3</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <i class="bi bi-lightning-charge text-danger" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3">缓存</h5>
+                    <p class="text-muted">Redis</p>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="feature-card">
+                    <pre class="mb-0 text-center" style="font-size: 0.9rem;">
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   客户端     │────▶│  Flask API  │────▶│   Redis     │
+│  (Web/API)  │     │   Server    │     │   Cache     │
+└─────────────┘     └──────┬──────┘     └─────────────┘
+                           │
+                    ┌──────▼──────┐
+                    │   SQLite    │
+                    │  Database   │
+                    └─────────────┘
+                           │
+         ┌─────────────────┼─────────────────┐
+         ▼                 ▼                 ▼
+    ┌─────────┐      ┌─────────┐      ┌─────────┐
+    │  飞书   │      │  钉钉   │      │  Flomo  │  ...
+    └─────────┘      └─────────┘      └─────────┘
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Slide 8: 功能对比 -->
+<section id="slide8" class="slide">
+    <div class="container">
+        <h2 class="section-title text-center">
+            <i class="bi bi-arrow-left-right text-primary"></i> 功能对比
+        </h2>
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="table-responsive">
+                    <table class="table table-compare table-hover">
+                        <thead>
+                            <tr>
+                                <th>功能特性</th>
+                                <th class="text-center">Server酱</th>
+                                <th class="text-center">本系统</th>
+                                <th class="text-center">优势</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>平台数量</strong></td>
+                                <td class="text-center">1个</td>
+                                <td class="text-center text-success fw-bold">7个</td>
+                                <td class="text-center"><span class="badge bg-success">7倍</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>消息模板</strong></td>
+                                <td class="text-center"><i class="bi bi-x-circle text-danger"></i></td>
+                                <td class="text-center"><i class="bi bi-check-circle text-success"></i></td>
+                                <td class="text-center"><span class="badge bg-info">独有</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>用户管理</strong></td>
+                                <td class="text-center"><i class="bi bi-x-circle text-danger"></i></td>
+                                <td class="text-center"><i class="bi bi-check-circle text-success"></i></td>
+                                <td class="text-center"><span class="badge bg-info">独有</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>数据统计</strong></td>
+                                <td class="text-center"><i class="bi bi-x-circle text-danger"></i></td>
+                                <td class="text-center"><i class="bi bi-check-circle text-success"></i></td>
+                                <td class="text-center"><span class="badge bg-info">独有</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Redis缓存</strong></td>
+                                <td class="text-center"><i class="bi bi-x-circle text-danger"></i></td>
+                                <td class="text-center"><i class="bi bi-check-circle text-success"></i></td>
+                                <td class="text-center"><span class="badge bg-warning text-dark">50x性能</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>API认证</strong></td>
+                                <td class="text-center">简单Key</td>
+                                <td class="text-center text-success">Token系统</td>
+                                <td class="text-center"><span class="badge bg-danger">更安全</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Slide 9: 项目成果 -->
+<section id="slide9" class="slide">
+    <div class="container">
+        <h2 class="section-title text-center">
+            <i class="bi bi-trophy text-primary"></i> 项目成果
+        </h2>
+        <div class="row g-4 mb-5">
+            <div class="col-md-3">
+                <div class="stat-box">
+                    <div class="stat-number">7</div>
+                    <div>支持平台</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-box">
+                    <div class="stat-number">100%</div>
+                    <div>测试通过</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-box">
+                    <div class="stat-number">&lt;1ms</div>
+                    <div>缓存延迟</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-box">
+                    <div class="stat-number">5000</div>
+                    <div>QPS并发</div>
+                </div>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="feature-card">
+                    <h5><i class="bi bi-check-circle-fill text-success"></i> 已完成功能</h5>
+                    <ul class="mt-3">
+                        <li>用户注册登录系统</li>
+                        <li>多平台消息发送（7种平台）</li>
+                        <li>消息模板管理</li>
+                        <li>API Token认证</li>
+                        <li>Redis缓存集成</li>
+                        <li>发送记录统计</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="feature-card">
+                    <h5><i class="bi bi-patch-check-fill text-primary"></i> 已测试验证</h5>
+                    <ul class="mt-3">
+                        <li><i class="bi bi-check text-success"></i> Flomo消息发送</li>
+                        <li><i class="bi bi-check text-success"></i> 飞书消息发送</li>
+                        <li><i class="bi bi-check text-success"></i> API认证功能</li>
+                        <li><i class="bi bi-check text-success"></i> 统计数据更新</li>
+                        <li><i class="bi bi-check text-success"></i> Redis缓存命中</li>
+                        <li><i class="bi bi-check text-success"></i> 模板变量替换</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Slide 10: 后续规划 -->
+<section id="slide10" class="slide">
+    <div class="container">
+        <h2 class="section-title text-center">
+            <i class="bi bi-rocket-takeoff text-primary"></i> 后续规划
+        </h2>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="timeline-item">
+                    <h5><span class="badge bg-success me-2">短期</span> 1-2周</h5>
+                    <ul class="text-muted">
+                        <li>定时发送功能</li>
+                        <li>批量发送优化</li>
+                        <li>消息重试机制</li>
+                    </ul>
+                </div>
+                <div class="timeline-item">
+                    <h5><span class="badge bg-warning text-dark me-2">中期</span> 1个月</h5>
+                    <ul class="text-muted">
+                        <li>短信通知集成</li>
+                        <li>Slack/Teams支持</li>
+                        <li>高级统计图表</li>
+                    </ul>
+                </div>
+                <div class="timeline-item">
+                    <h5><span class="badge bg-info me-2">长期</span> 3个月</h5>
+                    <ul class="text-muted">
+                        <li>AI智能路由</li>
+                        <li>多租户架构</li>
+                        <li>移动端APP</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Slide 11: 结尾 -->
+<section class="slide slide-title">
+    <div class="container text-center">
+        <h1 class="display-1 fw-bold mb-4">谢谢！</h1>
+        <p class="lead fs-3 mb-5 opacity-75">
+            "超越Server酱，打造企业级通知解决方案"
+        </p>
+        <div class="row justify-content-center g-4 mb-5">
+            <div class="col-auto">
+                <div class="bg-white bg-opacity-10 rounded-4 p-4">
+                    <i class="bi bi-folder2-open fs-2"></i>
+                    <div class="mt-2">项目目录</div>
+                    <code class="text-warning">/notification_manager</code>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="bg-white bg-opacity-10 rounded-4 p-4">
+                    <i class="bi bi-globe fs-2"></i>
+                    <div class="mt-2">演示地址</div>
+                    <code class="text-warning">http://localhost:5555</code>
+                </div>
+            </div>
+        </div>
+        <p class="opacity-50">报告生成时间: 2025-12-04</p>
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// 导航点高亮
+const navLinks = document.querySelectorAll('.nav-slide a');
+const sections = document.querySelectorAll('.slide');
+
+window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        if (scrollY >= sectionTop - 100) {
+            current = section.getAttribute('id');
+        }
+    });
+    
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + current) {
+            link.classList.add('active');
+        }
+    });
+});
+</script>
+</body>
+</html>
